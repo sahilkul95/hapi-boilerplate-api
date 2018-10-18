@@ -6,7 +6,7 @@ const envKey = key => {
       host: 'localhost',
       port: 9000,
       storage: {
-        devDB: 'mongodb://useradmin:Selenite#1@192.168.1.231/udyam-copy'
+        devDB: 'mongodb://devadmin:Selenite#1@192.168.1.98/acl'
       },
       services: {
         files: {
@@ -29,6 +29,9 @@ const envKey = key => {
       },
       reset_password_url: {
         baseURL: 'http://localhost:8000/resetpassword?resetToken='
+      },
+      reset_password_url_silo_admin: {
+        baseURL: 'http://localhost:8000/admin/resetpassword?resetToken='
       }
     },
     test: {
@@ -57,6 +60,9 @@ const envKey = key => {
       },
       reset_password_url: {
         baseURL: 'http://testurl.com/resetpassword?resetToken='
+      },
+      reset_password_url_silo_admin: {
+        baseURL: 'http://testurl.com/admin/resetpassword?resetToken='
       }
     },
     prod: {
@@ -85,6 +91,9 @@ const envKey = key => {
       },
       reset_password_url: {
         baseURL: 'http://produrl.com/resetpassword?resetToken='
+      },
+      reset_password_url_silo_admin: {
+        baseURL: 'http://produrl.com/admin/resetpassword?resetToken='
       }
     }
   };
@@ -143,7 +152,7 @@ const manifest = {
             }
           },
           info: {
-            title: 'PROJECT APIs',
+            title: '<PROJECT_NAME> APIs',
             description: 'REST APIs to access and administer project resources',
             version: '1.0'
           }
@@ -160,3 +169,4 @@ exports.services = envKey('services');
 exports.verification_link = envKey('verification_link');
 exports.verification_link_silo_admin = envKey('verification_link_silo_admin');
 exports.reset_password_url = envKey('reset_password_url');
+exports.reset_password_url_silo_admin = envKey('reset_password_url_silo_admin');

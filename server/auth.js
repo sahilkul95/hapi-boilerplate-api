@@ -1,4 +1,5 @@
-// const SECRET_KEY = require('./config/secret');
+const acldb = require('./storage/acl/models');
+const jwt = require('jsonwebtoken');
 const Boom = require('boom');
 
 exports.plugin = {
@@ -6,79 +7,62 @@ exports.plugin = {
   register: function (server) {
     const scheme = function () {
       return {
-        authenticate: function (request, h) {
+        authenticate: async function (req, h) {
 
-          const authorization = request.headers.authorization;
+          const authorization = req.headers.authorization;
           if (!authorization) {
             throw Boom.unauthorized(null, 'Custom');
           }
+          try {
+            // console.log(`verifying ${req.headers.authorization} with ${req.config.project.secret}`);
+            const decoded = jwt.verify(req.headers.authorization, req.config.project.secret);
 
-          return h.authenticated({ credentials: { user: 'john' } });
+            // console.log(`decoded`, decoded);
+            if (!(decoded.id)) {
+              throw Boom.unauthorized(null, 'Custom');
+            }
+
+            //Find session
+            let session = await acldb.session.findById(decoded.id);
+
+            if (!session) {
+              throw Boom.unauthorized(null, 'Custom');
+            }
+
+            const userFields = [
+              'companyID',
+              'isClientAdmin',
+              'name',
+              'displayName',
+              'mobile',
+              'email',
+              'roleIDs',
+              'sessions',
+              'wardIDs',
+              'departmentIDs',
+              'zoneIDs',
+              'discomDivisionIDs',
+              'isSiloAdmin',
+              'isSupportUser',
+              'deletedAt',
+              'isMobileNumberVerified',
+              'isVerified'
+            ];
+            let user = await acldb.user.findById(session.userID).select(userFields.join(" "));
+            if (!user || user.isSiloAdmin || user.isSupportUser || user.deletedAt || !user.isVerified) {
+              throw Boom.unauthorized(null, 'Custom');
+            }
+            user.session = session;
+            return h.authenticated({ credentials: user });
+          } catch (JWTException) {
+            // console.warn(JWTException);
+            throw Boom.unauthorized(null, 'Custom');
+          }
         }
       };
     };
     server.auth.scheme('jwt', scheme);
     server.auth.strategy('jwt', 'jwt');
-    // server.auth.default('jwt');
+    server.auth.default('jwt');
   }
 };
-
-
-// const acldb = require('./storage/acl/models');
-// const config = require('./config');
-//
-// exports.register = function(plugin, options, next) {
-//
-//   plugin.auth.strategy('jwt', 'jwt', {
-//     key: config.project.secret, // Secret key
-//     verifyOptions: {
-//       algorithms: ['HS256']
-//     },
-//     // Implement validation function
-//     validateFunc: (decoded, request, callback) => {
-//
-//       if (!decoded.id) {
-//         return callback(null, false);
-//       }
-//
-//       // return acldb.session
-//       //   .findById(decoded.id)
-//       //   .then((session) => {
-//       //
-//       //     if (!session) {
-//       //       return callback(null, false);
-//       //     }
-//       //
-//       //     const userFields = [
-//       //       'companyID',
-//       //       'isClientAdmin',
-//       //       'name',
-//       //       'mobile',
-//       //       'email',
-//       //       'roleIDs',
-//       //       'sessions'
-//       //     ];
-//       //     // console.log(`session: ${session}`);
-//       //     return acldb.user.findById(session.userID).select(userFields.join(" "))
-//       //     // .populate('roleIDs')
-//       //       .then((user) => {
-//       //         if (!user) {
-//       //           return callback(null, false);
-//       //         }
-//       //         user.session = session;
-//       //         return callback(null, true, user);
-//       //         //callback(null, true, { user : user, scope : !user.isClientAdmin ? 'isClientAdmin' : user.roleIDs[0].name});
-//       //       });
-//       //   });
-//     }
-//   });
-//
-//   // Uncomment this to apply default auth to all routes
-//   plugin.auth.default('jwt');
-//
-//   next();
-// };
-//
-// exports.register.attributes = {
-//   name: 'auth'
-// };

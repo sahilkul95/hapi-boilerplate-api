@@ -1,0 +1,17 @@
+{
+  "ecmaVersion": 8,
+  "libs": [],
+  "dontLoad": [
+    "node_modules/**"
+  ],
+  "plugins": {
+    "complete_strings": {},
+    "node": {},
+    "requirejs": {},
+    "modules": {},
+    "es_modules": {},
+    "doc_comment": {
+      "fullDocs": true
+    }
+  }
+}

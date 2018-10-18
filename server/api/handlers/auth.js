@@ -22,95 +22,78 @@ const login = {
   notes: 'This method authenticates user with the email and password. If user is successfully\
   authenticated, a token along with permissions mapped to the user is returned.',
   tags: ['api', 'auth'],
-  handler: (req, res) => {
-    return acldb.user
-      .findOne({
-        email: req.payload.email
-      })
-      .select('email salt hashedPassword isVerified companyID deletedAt loginAttempts lockUntill')
-      .then((user) => {
-        // console.log(`User - ${user}`);
-        if (!user) {
-          req.log(['error'], JSON.stringify(boom.notFound('Could not find your Udyam Account.')));
-          return res(boom.notFound('Could not find your Udyam Account.'));
+  handler: async (req) => {
+    let user = await acldb.user.findOne({ email: req.payload.email })
+      .select('email salt hashedPassword isVerified companyID deletedAt loginAttempts lockUntill');
+    if (!user) {
+      req.log(['error'], JSON.stringify(boom.notFound('Could not find your Udyam Account.')));
+      return boom.notFound('Could not find your Udyam Account.');
+    }
+
+    if (user.deletedAt) {
+      req.log(['error'], JSON.stringify(boom.unauthorized('Your account is deactivated.')));
+      return boom.unauthorized('Your account is deactivated.');
+    }
+    if (!user.isVerified) {
+      req.log(['error'], JSON.stringify(boom.badRequest('Your account is not verified. Please verify your account and login again.')));
+      return boom.badRequest('Your account is not verified. Please verify your account and login again.');
+    }
+
+    if (!user.authenticate(req.payload.password)) {
+      user.loginAttempts += 1;
+      if(user.loginAttempts === 5) {
+        // if loginAttempts are 5 then set lockuntill time = now time + 30 getSeconds
+        // so user can login after 30 seconds of 5 fail attampts
+        user.lockUntill = new Date(new Date().setSeconds(new Date().getSeconds()+30));
+      }
+      else {
+        if(user.loginAttempts > 5 && new Date() < user.lockUntill) {
+          // after 5 fail attempts user need to wait  30 seconds
+          req.log(['error'], JSON.stringify(boom.expectationFailed('Please try after 30 seconds.')));
+          return boom.expectationFailed('Please try after 30 seconds.');
         }
-
-        if (user.deletedAt) {
-          req.log(['error'], JSON.stringify(boom.unauthorized('Your account is deactivated.')));
-          return res(boom.unauthorized('Your account is deactivated.'));
+        if(user.loginAttempts > 5 && new Date() > user.lockUntill) {
+          // on 6 th attempts and after 30 seconds of 5 fail attempts reset login attempts to 1 and lockuntill
+          user.loginAttempts = 1;
+          user.lockUntill = undefined;
         }
-        if (!user.isVerified) {
-          req.log(['error'], JSON.stringify(boom.badRequest('Your account is not verified. Please verify your account and login again.')));
-          return res(boom.badRequest('Your account is not verified. Please verify your account and login again.'));
-        }
+      }
+      await user.save();
+      req.log(['error'], JSON.stringify(boom.forbidden('The Email or Password you entered is incorrect.')));
+      return boom.forbidden('The Email or Password you entered is incorrect.');
+    }
 
-        if (!user.authenticate(req.payload.password)) {
-          // T1600:Limit Login attempts
-          // Developer: Samruddhi
-          // Date: 10/8/2018
-          // comment: if password fails, increase login attempt by 1
-          // Updated By - Rutuja on 16/08/2018
-          user.loginAttempts += 1;
-          if(user.loginAttempts === 5) {
-            // if loginAttempts are 5 then set lockuntill time = now time + 30 getSeconds
-            // so user can login after 30 seconds of 5 fail attampts
-            user.lockUntill = new Date(new Date().setSeconds(new Date().getSeconds()+30));
-          }
-          else {
-            if(user.loginAttempts > 5 && new Date() < user.lockUntill) {
-              // after 5 fail attempts user need to wait  30 seconds
-              req.log(['error'], JSON.stringify(boom.expectationFailed('Please try after 30 seconds.')));
-              return res(boom.expectationFailed('Please try after 30 seconds.'));
-            }
-            if(user.loginAttempts > 5 && new Date() > user.lockUntill) {
-              // on 6 th attempts and after 30 seconds of 5 fail attempts reset login attempts to 1 and lockuntill
-              user.loginAttempts = 1;
-              user.lockUntill = undefined;
-            }
-          }
-          return user.save().then(() => {
-            req.log(['error'], JSON.stringify(boom.forbidden('The Email or Password you entered is incorrect.')));
-            return res(boom.forbidden('The Email or Password you entered is incorrect.'));
-          });
-        }
+    else {
+      if((user.loginAttempts <= 5) && (!user.lockUntill || new Date() > user.lockUntill)) {
+        // Build session for the current user
+        const session = new acldb.session({
+          userID: user._id
+        });
 
-        else {
-          if((user.loginAttempts <= 5) && (!user.lockUntill || new Date() > user.lockUntill)) {
-            // Build session for the current user
-            const session = new acldb.session({
-              userID: user._id
-            });
+        const token = jwt.sign({
+          id: session._id,
+          source: 'portal'
+        }, APP_SECRET, {
+          expiresIn: 60 * 5 * 1000
+        });
 
-            const token = jwt.sign({
-              id: session._id,
-              source: 'portal'
-            }, APP_SECRET, {
-              expiresIn: 60 * 5 * 1000
-            });
+        delete req.payload.password;
+        session.token = token;
+        session.expiresIn = 60 * 5 * 1000;
+        session.metadata = JSON.stringify(req.payload);
 
-            delete req.payload.password;
-            session.token = token;
-            session.expiresIn = 60 * 5 * 1000;
-            session.metadata = JSON.stringify(req.payload);
-
-            // Save the current session of user
-            return session.save().then(() => {
-              user.loginAttempts = 0;
-              user.lockUntill = undefined;
-              user.save().then(() => {
-                return res({
-                  token
-                });
-              });
-            });
-          // Updated By - Rutuja on 16/08/2018
-          } else {
-            // If the user is locked, but password entered is correct, user should not be logged in
-            //Respective error should be thrown.
-            return res(boom.expectationFailed('Please try after 30 seconds.'));
-          }
-        }
-      });
+        // Save the current session of user
+        await session.save();
+        user.loginAttempts = 0;
+        user.lockUntill = undefined;
+        await user.save();
+        return { token };
+      } else {
+        // If the user is locked, but password entered is correct, user should not be logged in
+        //Respective error should be thrown.
+        return boom.expectationFailed('Please try after 30 seconds.');
+      }
+    }
   }
 };
 
@@ -131,8 +114,6 @@ const siloAuth = {
           .string()
           .required()
       })
-      .description('credentials object')
-      .label('credentials')
   },
   plugins: {
     'hapi-swagger': {
@@ -173,7 +154,7 @@ const siloAuth = {
       }
     }
   },
-  handler: (req, res) => {
+  handler: (req) => {
     const userFindQuery = {
       email: req.payload.email,
       isSiloAdmin: true,
@@ -184,16 +165,16 @@ const siloAuth = {
       .then((user) => {
         if (!user) {
           req.log(['error'], JSON.stringify(boom.notFound('The Email or Password you entered is incorrect.')));
-          return res(boom.notFound('The Email or Password you entered is incorrect.'));
+          return boom.notFound('The Email or Password you entered is incorrect.');
         }
 
         if (user.deletedAt) {
           req.log(['error'], JSON.stringify(boom.unauthorized('Your account is deactivated.')));
-          return res(boom.unauthorized('Your account is deactivated.'));
+          return boom.unauthorized('Your account is deactivated.');
         }
         if (!user.isVerified) {
           req.log(['error'], JSON.stringify(boom.badRequest('Your account is not verified. Please verify your account and login again.')));
-          return res(boom.badRequest('Your account is not verified. Please verify your account and login again.'));
+          return boom.badRequest('Your account is not verified. Please verify your account and login again.');
         }
         if (!user.authenticate(req.payload.password)) {
           user.loginAttempts += 1;
@@ -206,7 +187,7 @@ const siloAuth = {
             if(user.loginAttempts > 5 && new Date() < user.lockUntill) {
               // after 5 fail attempts user need to wait  30 seconds
               req.log(['error'], JSON.stringify(boom.expectationFailed('Please try after 30 seconds.')));
-              return res(boom.expectationFailed('Please try after 30 seconds.'));
+              return boom.expectationFailed('Please try after 30 seconds.');
             }
             if(user.loginAttempts > 5 && new Date() > user.lockUntill) {
               // on 6 th attempts and after 30 seconds of 5 fail attempts reset login attempt to 1 and lockuntill
@@ -216,7 +197,7 @@ const siloAuth = {
           }
           return user.save().then(() => {
             req.log(['error'], JSON.stringify(boom.forbidden('The Email or Password you entered is incorrect.')));
-            return res(boom.forbidden('The Email or Password you entered is incorrect.'));
+            return boom.forbidden('The Email or Password you entered is incorrect.');
           });
         }
         else {
@@ -241,13 +222,13 @@ const siloAuth = {
             // Save the current session of user
             return session.save()
               .then(() => {
-                return res({token});
+                return { token };
               });
           }
           else {
             // If the user is locked, but password entered is correct, user should not be logged in
             //Respective error should be thrown.
-            return res(boom.expectationFailed('Please try after 30 seconds.'));
+            return boom.expectationFailed('Please try after 30 seconds.');
           }
         }
       });

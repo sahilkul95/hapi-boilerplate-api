@@ -1,0 +1,48 @@
+{
+  "exclude": [
+    "(^node_modules/)",
+    "(^.arclint)",
+    "(.arcexts/)",
+    "(.pdf$)",
+    "(^test/)"
+  ],
+  "linters": {
+    "chmod": {
+      "type": "chmod"
+    },
+    "filename": {
+      "type": "filename"
+    },
+    "generated": {
+      "type": "generated"
+    },
+    "eslint-regex-based": {
+      "type": "script-and-regex",
+      "include": "(\\.jsx?$)",
+      "exclude": [],
+      "script-and-regex.script": "sh -c '([ -e ./node_modules/.bin/eslint ]) && (./node_modules/.bin/eslint --fix -f compact \"$0\" || true)'",
+      "script-and-regex.regex": "/^(?P<file>.*): line (?P<line>[0-9]*), col (?P<char>[0-9]*), ((?P<warning>Warning)|(?P<error>Error)) - (?P<message>.*) \\((?P<code>[a-z-\\/]+)\\)$/m"
+    },
+    "json": {
+      "type": "json",
+      "include": [
+        "(^\\.arcconfig$)",
+        "(^\\.arclint$)",
+        "(\\.json$)"
+      ]
+    },
+    "merge-conflict": {
+      "type": "merge-conflict"
+    },
+    "nolint": {
+      "type": "nolint"
+    },
+    "spelling": {
+      "type": "spelling"
+    },
+    "text": {
+      "type": "text",
+      "text.max-line-length": 160
+    }
+  }
+}

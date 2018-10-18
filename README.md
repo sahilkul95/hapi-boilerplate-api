@@ -1,4 +1,5 @@
-## Sevak API
+## Hapi 17
+## Mongoose 5
 
 In order to efficiently get started with project, don't forget to first go through
 all the relevant [[technology | Developer Guidelines]].
