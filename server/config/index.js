@@ -123,13 +123,12 @@ const manifest = {
       {
         plugin: './auth'
       },
-      // },
       {
         plugin: './siloauth'
       },
-      // {
-      //   plugin: './developerauth'
-      // },
+      {
+        plugin: './developerauth'
+      },
       {
         plugin: './api',
         routes: { prefix: '/api' }
@@ -155,9 +154,39 @@ const manifest = {
             title: '<PROJECT_NAME> APIs',
             description: 'REST APIs to access and administer project resources',
             version: '1.0'
-          }
+          },
+          auth: 'developer'
         }
       },
+      {
+        plugin: require('good'),
+        options: {
+          ops: {
+            interval: 5000
+          },
+          includes: {
+            request: ['headers', 'payload'],
+            response: ['payload']
+          },
+          reporters: {
+            myConsoleReporter: [{
+              module: 'good-squeeze',
+              name: 'Squeeze',
+              args: [{ log: '*', response: '*', request: '*', error : '*'}]
+            }, {
+              module: 'white-out',
+              args: [{
+                password: 'remove',
+                newPassword: 'remove',
+                confirmpassword: 'remove',
+                confirmNewPassword: 'remove'
+              }]
+            },{
+              module: 'good-console'
+            }, 'stdout']
+          }
+        }
+      }
     ]
   }
 };

@@ -1,6 +1,7 @@
 // const Boom = require('boom');
 
 const testAPI = {
+  auth: false,
   tags: ['api', 'Test'],
   async handler(req) {
     console.log(req);

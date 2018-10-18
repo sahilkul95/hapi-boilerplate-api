@@ -7,26 +7,21 @@ const users = {
   }
 };
 
-exports.register = function (plugin, options, next) {
-
-  plugin
-    .auth
-    .strategy('developer', 'basic', {
-      validateFunc: (request, username, password, callback) => {
+exports.plugin = {
+  name: 'developerauth',
+  register: function(server) {
+    server.auth.strategy('developer', 'basic', {
+      validate: async (request, username, password) => {
         const user = users[username];
         if (!user) {
-          return callback(null, false);
+          return { credentials: null, isValid: false };
         }
 
-        // Bcrypt.compare(password, user.password, (err, isValid) => {
         if (password === user.password) {
-          callback(null, true, { id: user.id, name: user.name });
+          const credentials = { id: user.id, name: user.name };
+          return { isValid: true, credentials };
         }
       }
     });
-  next();
-};
-
-exports.register.attributes = {
-  name: 'developerauth'
+  }
 };
