@@ -6,7 +6,7 @@ const envKey = key => {
       host: 'localhost',
       port: 9000,
       storage: {
-        devDB: 'mongodb://devadmin:Selenite#1@192.168.1.98/acl'
+        devDB: ''  //Mongodb database URL here
       },
       services: {
         files: {
