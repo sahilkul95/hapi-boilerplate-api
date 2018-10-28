@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const basename = path.basename(module.filename);
 mongoose.Promise = global.Promise;
 mongoose.set('debug', true);
+mongoose.set('useCreateIndex', true);
 const dbConnection = mongoose.createConnection(config, { useNewUrlParser: true });
 
 const db = {};
