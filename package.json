@@ -31,7 +31,8 @@
     "promise": "^8.0.2",
     "request": "^2.88.0",
     "request-ip": "^2.1.1",
-    "white-out": "^2.0.2"
+    "white-out": "^2.0.2",
+    "vision": "^5.3.1"
   },
   "devDependencies": {
     "code": "^5.1.2",
@@ -39,7 +40,6 @@
     "eslint-plugin-import": "^2.8.0",
     "lab": "^15.2.0",
     "nodemon": "^1.11.0",
-    "npm-run-all": "^4.0.2",
-    "vision": "^5.3.1"
+    "npm-run-all": "^4.0.2"
   }
 }
