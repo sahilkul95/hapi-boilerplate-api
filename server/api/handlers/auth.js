@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../../config');
 const APP_SECRET = config.project.secret;
 const acldb = require('../../storage/acl/models');
-const boom = require('boom');
+const Boom = require('boom');
 
 
 /*
@@ -16,6 +16,9 @@ const login = {
     payload: {
       email: Joi.string().email().required().lowercase(),
       password: Joi.string().required()
+    },
+    failAction: (request, h, err) => {
+      return Boom.expectationFailed(err);
     }
   },
   description: 'User Authentication',
@@ -113,7 +116,10 @@ const siloAuth = {
         password: Joi
           .string()
           .required()
-      })
+      }),
+    failAction: (request, h, err) => {
+      return Boom.expectationFailed(err);
+    }
   },
   plugins: {
     'hapi-swagger': {

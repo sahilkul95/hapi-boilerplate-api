@@ -42,9 +42,9 @@ const envKey = key => {
       },
       services: {
         files: {
-          accessKeyId: '',
-          secretAccessKey: '',
-          bucket: '',
+          accessKeyId: process.env.S3ACCESSKEYID,
+          secretAccessKey: process.env.S3SECRETACCESSKEY,
+          bucket: process.env.S3BUCKETNAME,
           region: 'ap-south-1'
         }
       },
@@ -73,9 +73,9 @@ const envKey = key => {
       },
       services: {
         files: {
-          accessKeyId: '',
-          secretAccessKey: '',
-          bucket: '',
+          accessKeyId: process.env.S3ACCESSKEYID,
+          secretAccessKey: process.env.S3SECRETACCESSKEY,
+          bucket: process.env.S3BUCKETNAME,
           region: 'ap-south-1'
         }
       },
