@@ -1,5 +1,5 @@
-const Joi = require('joi');
-const Boom = require('boom');
+const Joi = require('@hapi/joi');
+const Boom = require('@hapi/boom');
 const jwt = require('jsonwebtoken');
 const { reset_password_url, project, reset_password_url_silo_admin } = require('../../../config');
 const Acldb = require('../../../storage/acl/models');

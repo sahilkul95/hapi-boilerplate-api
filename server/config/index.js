@@ -118,7 +118,7 @@ const manifest = {
       //   plugin: 'hapi-auth-jwt2'
       // },
       {
-        plugin: 'hapi-auth-basic'
+        plugin: '@hapi/basic'
       },
       {
         plugin: './auth'
@@ -134,10 +134,10 @@ const manifest = {
         routes: { prefix: '/api' }
       },
       {
-        plugin: require('inert')
+        plugin: require('@hapi/inert')
       },
       {
-        plugin: require('vision')
+        plugin: require('@hapi/vision')
       },
       {
         plugin: require('hapi-swagger'),
@@ -159,7 +159,7 @@ const manifest = {
         }
       },
       {
-        plugin: require('good'),
+        plugin: require('@hapi/good'),
         options: {
           ops: {
             interval: 5000
@@ -170,7 +170,7 @@ const manifest = {
           },
           reporters: {
             myConsoleReporter: [{
-              module: 'good-squeeze',
+              module: '@hapi/good-squeeze',
               name: 'Squeeze',
               args: [{ log: '*', response: '*', request: '*', error : '*'}]
             }, {
@@ -182,7 +182,7 @@ const manifest = {
                 confirmNewPassword: 'remove'
               }]
             },{
-              module: 'good-console'
+              module: '@hapi/good-console'
             }, 'stdout']
           }
         }

@@ -1,4 +1,4 @@
-const Glue = require('glue');
+const Glue = require('@hapi/glue');
 const { manifest, project } = require('./config');
 const cluster = require('cluster');
 const numCPUs = require('os').cpus().length;

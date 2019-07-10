@@ -1,6 +1,6 @@
 const acldb = require('./storage/acl/models');
 const jwt = require('jsonwebtoken');
-const Boom = require('boom');
+const Boom = require('@hapi/boom');
 
 exports.plugin = {
   name: 'auth',
