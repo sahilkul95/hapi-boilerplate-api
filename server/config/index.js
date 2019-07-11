@@ -6,7 +6,8 @@ const envKey = key => {
       host: 'localhost',
       port: 9000,
       storage: {
-        devDB: ''  //Mongodb database URL here
+        devDB: `mongodb://testuser:Powerdekht#2019@powerdek-ht-shard-00-00-amlhs.mongodb.net:27017,powerdek-ht-shard-00-01-amlhs.mongodb.net:27017,
+        powerdek-ht-shard-00-02-amlhs.mongodb.net:27017/powerdek-ht-test?replicaSet=powerdek-ht-shard-0&ssl=true&authSource=admin`
       },
       services: {
         files: {
@@ -38,13 +39,44 @@ const envKey = key => {
       host: 'localhost',
       port: 9000,
       storage: {
-        devDB: process.env.TESTDB
+        devDB: process.env.MONGODBURL
       },
       services: {
         files: {
-          accessKeyId: process.env.S3ACCESSKEYID,
-          secretAccessKey: process.env.S3SECRETACCESSKEY,
-          bucket: process.env.S3BUCKETNAME,
+          accessKeyId: '',
+          secretAccessKey: '',
+          bucket: '',
+          region: 'ap-south-1'
+        }
+      },
+      project: {
+        name: 'project-test',
+        secret: 'project - test - secret'
+      },
+      verification_link: {
+        baseURL: 'http://testurl.com/verify?verificationToken='
+      },
+      verification_link_silo_admin: {
+        baseURL: 'http://testurl.com/admin/verify?verificationToken='
+      },
+      reset_password_url: {
+        baseURL: 'http://testurl.com/resetpassword?resetToken='
+      },
+      reset_password_url_silo_admin: {
+        baseURL: 'http://testurl.com/admin/resetpassword?resetToken='
+      }
+    },
+    stage: {
+      host: 'localhost',
+      port: 9000,
+      storage: {
+        devDB: process.env.MONGODBURL
+      },
+      services: {
+        files: {
+          accessKeyId: '',
+          secretAccessKey: '',
+          bucket: '',
           region: 'ap-south-1'
         }
       },
@@ -69,13 +101,13 @@ const envKey = key => {
       host: 'localhost',
       port: 9000,
       storage: {
-        devDB: process.env.PRODDB
+        devDB: process.env.MONGODBURL
       },
       services: {
         files: {
-          accessKeyId: process.env.S3ACCESSKEYID,
-          secretAccessKey: process.env.S3SECRETACCESSKEY,
-          bucket: process.env.S3BUCKETNAME,
+          accessKeyId: '',
+          secretAccessKey: '',
+          bucket: '',
           region: 'ap-south-1'
         }
       },
@@ -97,7 +129,6 @@ const envKey = key => {
       }
     }
   };
-  // console.log(configuration, env);
   return configuration[env][key];
 };
 
@@ -137,7 +168,7 @@ const manifest = {
         plugin: require('@hapi/inert')
       },
       {
-        plugin: require('@hapi/vision')
+        plugin: require('vision')
       },
       {
         plugin: require('hapi-swagger'),
@@ -151,7 +182,7 @@ const manifest = {
             }
           },
           info: {
-            title: '<PROJECT_NAME> APIs',
+            title: 'PowerDek-HT APIs',
             description: 'REST APIs to access and administer project resources',
             version: '1.0'
           },

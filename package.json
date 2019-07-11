@@ -1,5 +1,5 @@
 {
-  "name": "project-boilerplate",
+  "name": "PowerDek-HT",
   "version": "1.0.0",
   "description": "Secure REST APIs for Any Node-Hapi stack with AWS-SDK installed",
   "main": "server/server.js",
@@ -8,34 +8,35 @@
     "start": "nodemon server/server.js",
     "lint": "eslint server/**/* --ext .js --fix"
   },
-  "author": "sahil <sahil.kulkarni95@gmail.com>",
+  "author": "sahil <sahil.kulkarni@selenite.co>",
   "license": "WTFPL",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sahilkul95/project_boilerplate.git"
-  },
-  "devDependencies": {
-    "eslint": "^4.16.0",
-    "eslint-plugin-import": "^2.8.0",
-    "nodemon": "^1.11.0"
+    "url": "https://phab.selenite.co.in/source/powerdekht-api/"
   },
   "dependencies": {
-    "hapi": "^18.1.0",
     "@hapi/basic": "^5.1.0",
     "@hapi/boom": "^7.4.2",
     "@hapi/glue": "^6.1.0",
     "@hapi/good": "^8.2.0",
     "@hapi/good-console": "^8.1.0",
     "@hapi/good-squeeze": "^5.2.0",
+    "@hapi/hapi": "^18.3.1",
     "@hapi/inert": "^5.2.1",
     "@hapi/joi": "^15.1.0",
-    "@hapi/vision": "^5.5.2",
     "@hapi/wreck": "^15.0.1",
-    "aws-sdk": "^2.490.0",
+    "aws-sdk": "^2.491.0",
     "hapi-swagger": "^10.0.2",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.3.4",
-    "request-ip": "^2.1.3",
+    "mongoose": "^5.6.4",
+    "request-ip": "^2.1.1",
+    "vision": "^5.4.4",
     "white-out": "^2.0.2"
+  },
+  "devDependencies": {
+    "@hapi/code": "^5.3.1",
+    "eslint": "^6.0.1",
+    "lab": "^15.2.0",
+    "nodemon": "^1.19.1"
   }
 }

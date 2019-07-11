@@ -1,4 +1,4 @@
-## Hapi 18, Mongoose 5
+## Hapi 18, Mongoose 5, Node 10
 
 In order to efficiently get started with project, don't forget to first go through
 all the relevant [[technology | Developer Guidelines]].
