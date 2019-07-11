@@ -6,8 +6,7 @@ const envKey = key => {
       host: 'localhost',
       port: 9000,
       storage: {
-        devDB: `mongodb://testuser:Powerdekht#2019@powerdek-ht-shard-00-00-amlhs.mongodb.net:27017,powerdek-ht-shard-00-01-amlhs.mongodb.net:27017,
-        powerdek-ht-shard-00-02-amlhs.mongodb.net:27017/powerdek-ht-test?replicaSet=powerdek-ht-shard-0&ssl=true&authSource=admin`
+        devDB: ``
       },
       services: {
         files: {
@@ -182,7 +181,7 @@ const manifest = {
             }
           },
           info: {
-            title: 'PowerDek-HT APIs',
+            title: '<Project_Name> APIs',
             description: 'REST APIs to access and administer project resources',
             version: '1.0'
           },

@@ -1,5 +1,5 @@
 {
-  "name": "PowerDek-HT",
+  "name": "Project-boilerplate-API",
   "version": "1.0.0",
   "description": "Secure REST APIs for Any Node-Hapi stack with AWS-SDK installed",
   "main": "server/server.js",
@@ -8,11 +8,11 @@
     "start": "nodemon server/server.js",
     "lint": "eslint server/**/* --ext .js --fix"
   },
-  "author": "sahil <sahil.kulkarni@selenite.co>",
+  "author": "sahil <sahil.kulkarni95@gmail.com>",
   "license": "WTFPL",
   "repository": {
     "type": "git",
-    "url": "https://phab.selenite.co.in/source/powerdekht-api/"
+    "url": "https://github.com/sahilkul95/project-boilerplate-api"
   },
   "dependencies": {
     "@hapi/basic": "^5.1.0",
